@@ -1,0 +1,100 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User", "Watch films, control subscribe")
+
+System_Boundary(kinobezdna, "Online Cinema Aggregator") {
+
+  ' ===== CLIENTS =====
+  Container(web, "Web App", "Chrome/Safari/Mozilla")
+  Container(mobile, "Mobile App", "iOS / Android")
+  Container(tv, "Smart TV App", "TV-client")
+
+  ' ===== API GATEWAY =====
+  Container(api, "API Gateway", "Kong / Nginx / AWS API Gateway", "Single entry point : JWT, rate limit, routing, versioning")
+
+  ' ===== USER DOMAIN =====
+  Container(auth, "Auth Service", "Go", "OAuth2, JWT, SSO")
+  Container(user_service, "User Service", "Go", "User settings")
+  Container(user_db, "User DB", "PostgreSQL", "User data")
+
+  ' ===== CONTENT DOMAIN =====
+  Container(content_service, "Movies Service", "Go", "Movies list, categories, metadata, licenses")
+  Container(search_service, "Search Service", "Go", "Full text search")
+  Container(content_db, "Movies Service DB", "PostgreSQL", "Metadata")
+  Container(search_index, "Search Index", "Elasticsearch", "Full text search index")
+
+  ' ===== SUBSCRIPTION & BILLING DOMAIN =====
+  Container(subscription_service, "Subscription Service", "Go", "Rates, subscription statuses")
+  Container(billing_service, "Billing Service", "Ready solution", "Payments, invoices, integrations")
+  Container(billing_db, "Analytics DB", "NoSQL", "Analytics DB")
+
+  ' ===== PARTNER INTEGRATION DOMAIN =====
+  Container(partner_service, "Partner Integration Service", "Go", "Adapters to external providers")
+
+  ' ===== ANALYTICS & RECOMMENDATION DOMAIN =====
+  Container(event_service, "Event Service", "Go", "Working with events from event bus")
+  Container(event_bus, "Event Bus", "Kafka", "Async events changing")
+  Container(analytics_service, "Analytics Service", "Go", "Event collection and processing")
+  Container(analytics_db, "Analytics DB", "NoSQL", "Analytics DB")
+
+  ' ===== NOTIFICATION DOMAIN =====
+  Container(notification_service, "Notification Service", "Go", "Email, Push, SMS")
+
+}
+
+' ===== EXTERNAL SYSTEMS =====
+System_Ext(payments, "Payment systems")
+System_Ext(content_providers, "Films providers")
+System_Ext(loyalty, "Loyalty services")
+System_Ext(notification_providers, "Email/SMS/Push providers")
+System_Ext(recommendation_service, "Recommendation Service")
+
+' ===== RELATIONSHIPS =====
+
+Rel(user, web, "Use")
+Rel(user, mobile, "Use")
+Rel(user, tv, "Use")
+
+' Rel(web, partner_service, "Get film")
+' Rel(mobile, partner_service, "Get film")
+' Rel(tv, partner_service, "Get film")
+
+Rel(web, api, "REST API")
+Rel(mobile, api, "REST API")
+Rel(tv, api, "REST API")
+
+Rel(api, auth, "Authentication")
+Rel(api, user_service, "REST API")
+Rel(api, content_service, "REST API")
+Rel(api, search_service, "REST API")
+Rel(api, subscription_service, "REST API")
+Rel(api, billing_service, "REST API")
+Rel(api, analytics_service, "REST API")
+
+Rel(auth, user_db, "R/W")
+Rel(user_service, user_db, "R/W")
+
+Rel(content_service, content_db, "R/W")
+Rel(search_service, search_index, "R/W")
+
+Rel(subscription_service, billing_db, "R/W")
+Rel(billing_service, billing_db, "R/W")
+Rel(billing_service, payments, "REST API")
+
+Rel(content_service, partner_service, "Get external content")
+Rel(partner_service, content_providers, "REST API")
+Rel(partner_service, loyalty, "REST API")
+
+Rel(subscription_service, event_bus, "Subscription events")
+Rel(content_service, event_bus, "Content viewed")
+Rel(event_bus, event_service, "Control events")
+Rel(event_service, analytics_service, "Streaming")
+Rel(event_service, notification_service, "User events")
+
+Rel(analytics_service, analytics_db, "R/W")
+Rel(analytics_service, recommendation_service, "REST API")
+
+Rel(notification_service, notification_providers, "SMTP / API")
+
+@enduml
