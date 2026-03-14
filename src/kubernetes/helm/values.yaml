@@ -5,7 +5,7 @@ global:
 
 # Image pull secrets
 imagePullSecrets:
-  dockerconfigjson: ewoJImF1dGhzIjogewoJCSJnaGNyLmlvIjogewoJCQkiYXV0aCI6
+  dockerconfigjson: ewoJImF1dGhzIjogewoJCSJkb2NrZXItaHViLnB0c2VjdXJpdHkucnU6NDYzIjoge30sCgkJImRvY2tlci1wdGNlcnQucHRzZWN1cml0eS5ydSI6IHt9LAoJCSJkb2NrZXItc3AucHRzZWN1cml0eS5ydTo0NjMiOiB7fSwKCQkiaHR0cHM6Ly9pbmRleC5kb2NrZXIuaW8vdjEvIjoge30sCiAgICAgICAgICAgICAgICAiZ2hjci5pbyI6IHsiYXV0aCI6ICJibXQxZW01bGRITnZkbUU2WjJod1h6WlZkSEozVUZwSVpVSlRaRGs0V0RKd05IQkRXVlJDZVZoNU9FSmtZekZrU1U5T1lnPT0ifQoJfSwKCSJjcmVkc1N0b3JlIjogImRlc2t0b3AiCn0=
 # Database configuration
 database:
   host: postgres
@@ -33,7 +33,7 @@ database:
 monolith:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/monolith
+    repository: ghcr.io/nkuznetsova/architecture-cinemaabyss/monolith
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -53,7 +53,7 @@ monolith:
 proxyService:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/proxy-service
+    repository: ghcr.io/nkuznetsova/architecture-cinemaabyss/proxy-service
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -68,12 +68,15 @@ proxyService:
     port: 80
     targetPort: 8000
     type: ClusterIP
+  migration:
+    gradualMigration: true
+    moviesMigrationPercent: 50
 
 # Movies service configuration
 moviesService:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/movies-service
+    repository: ghcr.io/nkuznetsova/architecture-cinemaabyss/movies-service
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -93,7 +96,7 @@ moviesService:
 eventsService:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/events-service
+    repository: ghcr.io/nkuznetsova/architecture-cinemaabyss/events-service
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -119,11 +122,11 @@ kafka:
   replicas: 1
   resources:
     limits:
-      cpu: 1000m
-      memory: 1Gi
+      cpu: "1000m"
+      memory: "3Gi"
     requests:
-      cpu: 200m
-      memory: 512Mi
+      cpu: "500m"
+      memory: "2Gi"
   persistence:
     enabled: true
     size: 5Gi

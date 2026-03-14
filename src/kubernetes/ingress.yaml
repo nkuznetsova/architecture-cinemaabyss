@@ -11,12 +11,53 @@ spec:
     - host: cinemaabyss.example.com
       http:
         paths:
-          #дополните конфигурацию для /
-          ...
-          - path: /api/events
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: proxy-service
+                port:
+                  number: 8000
+          - path: /api/movies
             pathType: Prefix
+            backend:
+              service:
+                name: proxy-service
+                port:
+                  number: 8000
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: proxy-service
+                port:
+                  number: 8000
+          - path: /api/events/health
+            pathType: Exact
             backend:
               service:
                 name: events-service
                 port:
                   number: 8082
+          - path: /api/events/movie
+            pathType: Exact
+            backend:
+              service:
+                name: events-service
+                port:
+                  number: 8082
+          - path: /api/events/user
+            pathType: Exact
+            backend:
+              service:
+                name: events-service
+                port:
+                  number: 8082
+          - path: /api/events/payment
+            pathType: Exact
+            backend:
+              service:
+                name: events-service
+                port:
+                  number: 8082
+  ingressClassName: nginx
